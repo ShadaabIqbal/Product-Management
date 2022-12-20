@@ -122,6 +122,7 @@ const updateProduct = async function (req, res) {
     let productIsPresent = await productModel.findById({ _id: productId, isDeleted: false })
     if (!productIsPresent) return res.status(404).send({ status: false, message: 'No such product' });
     const { title, description, price, currencyId, currencyFormat, isFreeShipping, productImage, style, availableSizes, installments } = req.body
+    const files = req.files
     if (!validation.requiredInput(req.body)) return res.status(400).send({ status: false, message: 'Input is required for updation' });
     let obj = {}
     if (title) {
@@ -149,8 +150,17 @@ const updateProduct = async function (req, res) {
       obj.currencyFormat = currencyFormat
     }
     if (isFreeShipping) {
+      if (!(isFreeShipping === "true" || isFreeShipping === "false")) return res.status(400).send({ status: false, message: "isFreeShipping should only be boolean" })
       obj.isFreeShipping = isFreeShipping
     }
+
+    if (files && files.length > 0) {
+      if (!validation.validImage(files[0].originalname))
+        return res.status(400).send({ status: false, message: "productImage must be of extention .jpg,.jpeg,.bmp,.gif,.png" });
+      let productImg = await aws.uploadFile(files[0]);
+      req.body.productImage = productImg;
+    }
+
     if (style) {
       if (!validation.isEmpty(style)) return res.status(400).send({ status: false, message: 'style should be valid' });
       if (!validation.isValidName(style)) return res.status(400).send({ status: false, message: 'style should be string' });
@@ -160,7 +170,7 @@ const updateProduct = async function (req, res) {
       if (!validation.isEmpty(availableSizes)) return res.status(400).send({ status: false, message: 'availableSizes should be valid' });
       if (!["S", "XS", "M", "X", "L", "XXL", "XL"].includes(availableSizes)) return res.status(400).send({ status: false, message: 'availableSizes should be within "["S", "XS", "M", "X", "L", "XXL", "XL"]"' });
       obj.availableSizes = availableSizes
-    } bl
+    }
     if (installments) {
       if (!validation.price(installments)) return res.status(400).send({ status: false, message: 'installments should be valid' });
       obj.installments = installments
@@ -174,14 +184,14 @@ const updateProduct = async function (req, res) {
   }
 }
 
-const deleteProduct = async function(req, res){
-  try{
+const deleteProduct = async function (req, res) {
+  try {
     const productId = req.params.productId
     let productIsPresent = await productModel.findById({ _id: productId, isDeleted: false })
     if (!productIsPresent) return res.status(404).send({ status: false, message: 'No such product' });
-await productModel.findByIdAndUpdate({_id: productId}, {$set: {isDeleted: true, deletedAt: Date.now()}})
-return res.status(200).send({ status: true, message: 'Deleted Successfully' })
-  }catch(error){
+    await productModel.findByIdAndUpdate({ _id: productId }, { $set: { isDeleted: true, deletedAt: Date.now() } })
+    return res.status(200).send({ status: true, message: 'Deleted Successfully' })
+  } catch (error) {
     return res.status(500).send({ status: false, error: error.message })
   }
 }

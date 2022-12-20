@@ -18,9 +18,9 @@ router.get('/products', productController.getProductByQuery )
 
 router.get('/products/:productId', productController.getProductById )
 
-router.get('/products/:productId', productController.updateProduct )
+router.put('/products/:productId', productController.updateProduct )
 
-router.get('/products/:productId', productController.deleteProduct )
+router.delete('/products/:productId', productController.deleteProduct )
 
 
 
