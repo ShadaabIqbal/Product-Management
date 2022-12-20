@@ -10,7 +10,11 @@ const isEmpty = function (value) {
     if (typeof value === "string" && value.trim().length === 0) return false;
     return true;
 };
-
+const price = function (value) {
+    if (typeof value === "undefined" || value === null) return false;
+    if (typeof value === "number") return false;
+    return true;
+};
 //Name Validation
 const isValidName = function (name) {
     const nameRegex = /^[a-zA-Z ]+$/;
@@ -67,4 +71,4 @@ const validImage = function (value){
     return value.match(/(\.jpg|\.jpeg|\.bmp|\.gif|\.png)$/)
 }
 
-module.exports = { isEmpty, isValidName, isValidPhone, isValidpincode, isValidStreet, isValidEmail, isValidPswd, isJson, validSize, validImage, requiredInput }
+module.exports = { isEmpty, isValidName, isValidPhone, isValidpincode, isValidStreet, isValidEmail, isValidPswd, isJson, validSize, validImage, requiredInput, price }

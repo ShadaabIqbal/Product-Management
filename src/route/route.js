@@ -18,6 +18,10 @@ router.get('/products', productController.getProductByQuery )
 
 router.get('/products/:productId', productController.getProductById )
 
+router.get('/products/:productId', productController.updateProduct )
+
+router.get('/products/:productId', productController.deleteProduct )
+
 
 
 module.exports = router
