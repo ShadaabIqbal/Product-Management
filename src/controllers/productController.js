@@ -45,7 +45,7 @@ const createProduct = async function (req, res) {
 
     if (isFreeShipping) {
       if (!validation.isEmpty(isFreeShipping)) {
-        return res.status(400).send({ status: false, message: "isFreeShipping is not valid" })
+        return res.status(400).send({ status: false, message: "isFreeShipping is empty" })
       }
 
       if (!(isFreeShipping == "true" || isFreeShipping == "false")) {
@@ -55,7 +55,7 @@ const createProduct = async function (req, res) {
 
     if (style) {
       if (!validation.isEmpty(style)) {
-        return res.status(400).send({ status: false, message: "Style is not valid" })
+        return res.status(400).send({ status: false, message: "Style is empty" })
       }
       if (!validation.isValidStyle(style)) {
         return res.status(400).send({ status: false, message: "Style is not in correct format" })
