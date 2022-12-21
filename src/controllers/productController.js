@@ -125,14 +125,14 @@ const updateProduct = async function (req, res) {
     const files = req.files
     if (!validation.requiredInput(req.body)) return res.status(400).send({ status: false, message: 'Input is required for updation' });
     let obj = {}
-    if (title) {
+    if (title || title == "") {
       if (!validation.isEmpty(title)) return res.status(400).send({ status: false, message: 'Title should be valid' });
       if (!validation.isValidName(title)) return res.status(400).send({ status: false, message: 'Title should be string' });
       let existingTitle = await productModel.findOne({ title: title })
       if (existingTitle) return res.status(400).send({ status: false, message: 'Already existing title' });
       obj.title = title
     }
-    if (description) {
+    if (description || description == "") {
       if (!validation.isEmpty(description)) return res.status(400).send({ status: false, message: 'description should be valid' });
       if (!validation.isValidName(description)) return res.status(400).send({ status: false, message: 'description should be string' });
       obj.description = description
@@ -161,7 +161,7 @@ const updateProduct = async function (req, res) {
       req.body.productImage = productImg;
     }
 
-    if (style) {
+    if (style || style == "") {
       if (!validation.isEmpty(style)) return res.status(400).send({ status: false, message: 'style should be valid' });
       if (!validation.isValidName(style)) return res.status(400).send({ status: false, message: 'style should be string' });
       obj.style = style
