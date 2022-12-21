@@ -96,13 +96,13 @@ const createProduct = async function (req, res) {
 const getProductByQuery = async function (req, res) {
   try {
     if (!validation.requiredInput(req.query)) return res.status(400).send({ status: false, message: "Input is required" })
-    const { size, name, priceGreaterThan, priceLessThan, priceSort } = req.query
+    let { size, name, priceGreaterThan, priceLessThan, priceSort } = req.query
 
     let obj = { isDeleted: false }
 
     if (size) {
       size = size.toUpperCase();
-      if (!isValidSize(data.size)) return res.status(400).send({ status: false, message: "Size is not valid" })
+      if (!validation.validSize(size)) return res.status(400).send({ status: false, message: "Size is not valid" })
       obj.availableSizes = { $in: size }
     }
 
