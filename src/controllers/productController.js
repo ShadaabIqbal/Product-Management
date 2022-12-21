@@ -8,6 +8,7 @@ const userModel = require('../models/userModel');
 const createProduct = async function (req, res) {
   try {
     let data = req.body;
+    let files = req.files;
 
     if (Object.keys(data).length == 0) {
       return res.status(400).send({ status: false, message: "Please provide details" });
@@ -22,54 +23,67 @@ const createProduct = async function (req, res) {
       });
     }
 
-    let files = req.files;
-
-    if (!title)
-      return res.status(400).send({ status: false, message: "title is required" });
+    if (!title) return res.status(400).send({ status: false, message: "title is required" });
     if (!description) return res.status(400).send({ status: false, message: "description is required" });
     if (!price) return res.status(400).send({ status: false, message: "price is required" });
+    if (!validation.isValidPrice(price)) {
+      return res.status(400).send({ status: false, message: "Price should be a number" })
+    }
+    if (!validation.isValidPrice(price)) return res.status(400).send({ status: false, message: "Price is not valid" })
     if (!currencyId) return res.status(400).send({ status: false, message: "currencyId is required" });
+    if (currencyId != 'INR') return res.status(400).send({ status: false, message: "currencyId must be INR " })
     if (!currencyFormat) return res.status(400).send({ status: false, message: "currencyFormat is required" });
+    if (currencyFormat != '₹') return res.status(400).send({ status: false, message: "currencyFormat must be ₹ " })
+    const isTitleAlreadyUsed = await productModel.findOne({ title: req.body.title });
+    if (isTitleAlreadyUsed) return res.status(404).send({ status: false, message: "Title is already used" });
 
     if (files.length === 0) return res.status(400).send({ status: false, message: "productImage is required" });
+    if (!validation.validImage(files[0].originalname))
+      return res.status(400).send({ status: false, message: "productImage must be of extention .jpg,.jpeg,.bmp,.gif,.png" });
+    let productImg = await aws.uploadFile(files[0]);
+    data.productImage = productImg;
 
-    if (!availableSizes) return res.status(400).send({ status: false, message: "availableSizes is required" });
-    if (availableSizes) {
-      let size = availableSizes.toUpperCase().split(",")
-      data.availableSizes = size;
-  
-
-  for(let i=0; i< size.length; i++){
-      if(!validation.validSize(size[i])){
-          return res.status(400).send({ status : false, message : "Size is not available"})
+    if (isFreeShipping) {
+      if (!validation.isEmpty(isFreeShipping)) {
+        return res.status(400).send({ status: false, message: "isFreeShipping is not valid" })
       }
-  }
-}
 
-    //if (!validation.validSize(availableSizes)) return res.status(400).send({ status: false, message: "Size not avilable" })
-
-    const isTitleAlreadyUsed = await productModel.findOne({
-      title: req.body.title,
-    });
-
-    if (isTitleAlreadyUsed)
-      return res.status(404).send({ status: false, message: "Title is already used" });
-
-    if (currencyId != 'INR') return res.status(400).send({ status: false, message: "currencyId must be INR " })
-
-    if (currencyFormat != '₹') return res.status(400).send({ status: false, message: "currencyFormat must be ₹ " })
-
-    let uploadedFileURL;
-
-    if (req.files && req.files.length > 0) {
-      if (!validation.validImage(files[0].originalname))
-        return res.status(400).send({ status: false, message: "productImage must be of extention .jpg,.jpeg,.bmp,.gif,.png" });
-
-      uploadedFileURL = await aws.uploadFile(req.files[0]);
-    } else {
-      res.status(400).send({ message: "No file found" });
+      if (!(isFreeShipping == "true" || isFreeShipping == "false")) {
+        return res.status(400).send({ status: false, message: "Please enter a boolean value for isFreeShipping" })
+      }
     }
-    data.productImage = uploadedFileURL;
+
+    if (style) {
+      if (!validation.isEmpty(style)) {
+        return res.status(400).send({ status: false, message: "Style is not valid" })
+      }
+      if (!validation.isValidStyle(style)) {
+        return res.status(400).send({ status: false, message: "Style is not in correct format" })
+      }
+    }
+
+    if (availableSizes) {
+      let size = availableSizes.toUpperCase().split(" ")
+
+      for (let i = 0; i < size.length; i++) {
+        if (!validation.validSize(size[i])) {
+          return res.status(400).send({ status: false, message: "Size is not available" })
+        }
+      }
+      data.availableSizes = size;
+    }
+
+    if (installments || installments == "") {
+      if (!validation.isEmpty(installments)) {
+        return res.status(400).send({ status: false, message: "Installments is empty" })
+      }
+    }
+
+    if (installments) {
+      if (!validation.isValidPrice(installments)) {
+        return res.status(400).send({ status: false, message: "Installments should be a valid number" })
+      }
+    }
 
     const savedData = await productModel.create(data);
     return res.status(201).send({ status: true, message: "Success", data: savedData });
@@ -87,10 +101,13 @@ const getProductByQuery = async function (req, res) {
     let obj = { isDeleted: false }
 
     if (size) {
-      obj.availableSizes = size
+      size = size.toUpperCase();
+      if (!isValidSize(data.size)) return res.status(400).send({ status: false, message: "Size is not valid" })
+      obj.availableSizes = { $in: size }
     }
+
     if (name) {
-      obj.title = name
+      obj.title = { $regex: name }
     }
     if (priceGreaterThan) {
       obj.price = { $gt: priceGreaterThan }
