@@ -51,12 +51,12 @@ const productSchema = new mongoose.Schema({
         trim: true,
     },
 
-    availableSizes:
+    availableSizes:[
     {
         type: String,
         trim: true,
         enum: ["S", "XS", "M", "X", "L", "XXL", "XL"],
-    },
+    }],
 
 
     installments: Number,

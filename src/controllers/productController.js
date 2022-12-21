@@ -34,9 +34,19 @@ const createProduct = async function (req, res) {
     if (files.length === 0) return res.status(400).send({ status: false, message: "productImage is required" });
 
     if (!availableSizes) return res.status(400).send({ status: false, message: "availableSizes is required" });
+    if (availableSizes) {
+      let size = availableSizes.toUpperCase().split(",")
+      data.availableSizes = size;
+  
 
+  for(let i=0; i< size.length; i++){
+      if(!validation.validSize(size[i])){
+          return res.status(400).send({ status : false, message : "Size is not available"})
+      }
+  }
+}
 
-    if (!validation.validSize(availableSizes)) return res.status(400).send({ status: false, message: "Size not avilable" })
+    //if (!validation.validSize(availableSizes)) return res.status(400).send({ status: false, message: "Size not avilable" })
 
     const isTitleAlreadyUsed = await productModel.findOne({
       title: req.body.title,
