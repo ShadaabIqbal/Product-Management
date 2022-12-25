@@ -96,7 +96,7 @@ const getCart = async function (req, res) {
     try {
         let userId = req.userId
         let cartPresent = await cartModel.findOne({ userId: userId })
-        if (!cartPresent) return res.status(400).send({ status: false, message: "cart not found for this user" })
+        if (!cartPresent) return res.status(404).send({ status: false, message: "cart not found for this user" })
         return res.status(200).send({ status: true, message: "Success", data: cartPresent })
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
