@@ -22,6 +22,10 @@ const isValidEmail = function (email) {
     return emailRegex.test(email);
 };
 
+const isValidString = (String) => {
+    return /\d/.test(String)
+  };
+
 //Phone Validation
 const isValidPhone = function (phone) {
     const phoneRegex = /^[6-9]\d{9}$/;
@@ -75,4 +79,4 @@ const isValidPrice = function (price) {
     return /^[a-zA-Z _.-]+$/.test(value);
   };
 
-module.exports = { isEmpty, isValidName, isValidPhone, isValidpincode, isValidStreet, isValidEmail, isValidPswd, isJson, validSize, validImage, requiredInput, isValidPrice, isValidStyle, isValidObjectId }
+module.exports = { isEmpty, isValidName, isValidPhone, isValidpincode, isValidStreet, isValidEmail, isValidPswd, isJson, validSize, validImage, requiredInput, isValidPrice, isValidStyle, isValidObjectId, isValidString }

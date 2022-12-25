@@ -31,21 +31,22 @@ const authentication = async function (req, res, next) {
     }
 }
 
-const authorisation = async function(req, res, next){
-try{
-const userId = req.params.userId
-if(!isValidObjectId(userId)) return res.status(400).send({status: false, message: 'userId is invalid'})
-let presentUser = await userModel.findById({isDeleted: false, _id: userId})
-if(!presentUser) return res.status(403).send({status: false, message: 'userId is not present'})
+const authorisation = async function (req, res, next) {
+    try {
+        const userId = req.params.userId
+        if (!userId) return res.status(400).send({ status: false, message: 'userId must be present' })
+        if (!isValidObjectId(userId)) return res.status(400).send({ status: false, message: 'userId is invalid' })
+        let presentUser = await userModel.findById({ isDeleted: false, _id: userId })
+        if (!presentUser) return res.status(403).send({ status: false, message: 'userId is not present' })
 
-let decodedToken = req.decodedToken.userId
-if(userId.toString() != decodedToken) return res.status(403).send({status: false, message: 'You do not have access rights'})
-req.userId = userId
-next()
+        let decodedToken = req.decodedToken.userId
+        if (userId.toString() != decodedToken) return res.status(403).send({ status: false, message: 'You do not have access rights' })
+        req.userId = userId
+        next()
 
-}catch(error){
-    return res.status(500).send({status: false, message: error.message})
-}
+    } catch (error) {
+        return res.status(500).send({ status: false, message: error.message })
+    }
 }
 
 

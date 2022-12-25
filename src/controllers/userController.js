@@ -86,7 +86,7 @@ const createUser = async function (req, res) {
         let hash = await bcrypt.hash(password, saltRounds);
         data.password = hash;
 
-        let checkEmailAndPhone = await userModel.findOne({ $or: [ {email }, { phone }] });
+        let checkEmailAndPhone = await userModel.findOne({ $or: [{ email }, { phone }] });
         if (checkEmailAndPhone) {
             return res.status(400).send({ status: "false", message: "Email or phone already exists" });
         }
@@ -122,7 +122,7 @@ const loginUser = async function (req, res) {
         let comparePassword = await bcrypt.compare(password, presentUser.password)
         if (!comparePassword) return res.status(401).send({ status: false, message: 'Incorrect password' })
 
-        const encodeToken = jwt.sign({ userId: presentUser._id, iat: Math.floor(Date.now() / 1000), exp: Math.floor(Date.now() / 1000) + (60*60*24) }, 'group29')
+        const encodeToken = jwt.sign({ userId: presentUser._id, iat: Math.floor(Date.now() / 1000), exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) }, 'group29')
         let obj = { userId: presentUser._id, token: encodeToken }
         return res.status(200).send({ status: true, data: obj })
 
@@ -168,11 +168,12 @@ const updateUser = async function (req, res) {
         }
 
         const data = req.body;
-        if (Object.keys(data).length == 0) {
+        let files = req.files;
+        if (Object.keys(data).length == 0 && files == undefined) {
             return res.status(400).send({ status: false, message: "Insert Data : BAD REQUEST" });
         }
 
-        let { fname, lname, email, phone, password } = data;
+        let { fname, lname, email, phone, password, profileImage } = data;
 
         if (fname || fname == "") {
             if (!isEmpty(fname)) {
@@ -275,10 +276,15 @@ const updateUser = async function (req, res) {
             }
         }
 
-        if (req.files.length !== 0) {
-            let PicUrl = await uploadFile(req.files[0])
-            if (!PicUrl) return res.status(400).send({ status: false, msg: "Provide valid profile picture" })
-            data.profileImage = PicUrl
+        if (profileImage == "" && files.length == 0) return res.status(400).send({ status: false, message: "Image can't be empty empty" })
+
+        if (files && files.length > 0) {
+            if (!validations.validImage(files[0].originalname)) {
+                return res.status(400).send({ status: false, message: "Image is not valid must be of extention .jpg,.jpeg,.bmp,.gif,.png" })
+            } else {
+                let uploadProfileURL = await uploadFile(files[0])
+                data.profileImage = uploadProfileURL
+            }
         }
 
         let updateData = await userModel.findOneAndUpdate({ _id: userId }, data, { new: true });
