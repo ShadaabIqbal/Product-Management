@@ -59,11 +59,11 @@ const updateCart = async function (req, res) {
         if (!cartId) return res.status(400).send({ status: false, message: "cartId must be present" })
         if (!validations.isValidObjectId(cartId)) return res.status(400).send({ status: false, message: "cartId not valid" })
         let cartPresent = await cartModel.findOne({ userId: userId, _id: cartId })
-        if (!cartPresent) return res.status(400).send({ status: false, message: "cart not found for this user" })
+        if (!cartPresent) return res.status(404).send({ status: false, message: "cart not found for this user" })
         if (!productId) return res.status(400).send({ status: false, message: "productId must be present" })
         if (!validations.isValidObjectId(productId)) return res.status(400).send({ status: false, message: "productId not valid" })
         let productPresent = await productModel.findById(productId)
-        if (!productPresent) return res.status(400).send({ status: false, message: "product not found" })
+        if (!productPresent) return res.status(404).send({ status: false, message: "product not found" })
         if (removeProduct !== 1 && removeProduct !== 0) return res.status(400).send({ status: false, message: "remove product can only be 1 an 0" })
         let totalPrice = cartPresent.totalPrice
         let items = cartPresent.items
@@ -107,7 +107,7 @@ const deleteCart = async function (req, res) {
     try {
         let userId = req.userId
         let cartPresent = await cartModel.findOne({ userId: userId })
-        if (!cartPresent) return res.status(400).send({ status: false, message: "cart not found for this user" })
+        if (!cartPresent) return res.status(404).send({ status: false, message: "cart not found for this user" })
         let items = []
         let price = 0
         let noOfItems = 0
