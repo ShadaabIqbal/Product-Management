@@ -10,7 +10,7 @@ const createOrder = async function (req, res) {
         if (!validator.requiredInput(req.body)) return res.status(400).send({ status: false, message: 'Input is required' })
         const cartId = req.body.cartId
         if (!isValidObjectId(cartId)) return res.status(400).send({ status: false, message: 'Cart Id is invalid' })
-        let presentCart = await cartModel.findOne({ _id: cartId, isDeleted: false })
+        let presentCart = await cartModel.findOne({ _id: cartId })
         if (!presentCart) return res.status(404).send({ status: false, message: 'No cart found' })
         if (presentCart.userId.toString() != userId) return res.status(403).send({ status: false, message: "You do not have access rigths" })
 
@@ -50,8 +50,8 @@ const updateOrder = async function (req, res) {
 
         if (!validator.isEmpty(status)) return res.status(400).send({ status: false, message: 'Status is required' })
         if (!['completed', 'cancelled'].includes(status)) { return res.status(400).send({ status: false, message: 'status can only be completed or cancelled' }) }
-if(presentOrder.status === 'pending'){
-    if (status == 'completed') {
+        if (presentOrder.status === 'pending') {
+            if (status == 'completed') {
                 req.body.status = 'completed'
             } else if (status == 'cancelled') {
                 if (presentOrder.cancellable === true) {
@@ -60,11 +60,11 @@ if(presentOrder.status === 'pending'){
                     return res.status(400).send({ status: false, message: 'This order cannot be cancelled' })
                 }
             }
-        let updateOrder = await orderModel.findByIdAndUpdate({ _id: orderId }, { $set: { status: req.body.status } }, { new: true })
-        return res.status(200).send({ status: true, message: 'Success', data: updateOrder })
-    }else{
-        return res.status(404).send({ status: false, message: 'No order found' })
-    }
+            let updateOrder = await orderModel.findByIdAndUpdate({ _id: orderId }, { $set: { status: req.body.status } }, { new: true })
+            return res.status(200).send({ status: true, message: 'Success', data: updateOrder })
+        } else {
+            return res.status(404).send({ status: false, message: 'No order found' })
+        }
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
     }

@@ -276,7 +276,7 @@ const updateUser = async function (req, res) {
             }
         }
 
-        if (profileImage == "" && files.length == 0) return res.status(400).send({ status: false, message: "Image can't be empty empty" })
+        if (profileImage == "" && files.length == 0) return res.status(400).send({ status: false, message: "Image can't be empty" })
 
         if (files && files.length > 0) {
             if (!validations.validImage(files[0].originalname)) {

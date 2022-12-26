@@ -36,12 +36,12 @@ const authorisation = async function (req, res, next) {
         const userId = req.params.userId
         if (!userId) return res.status(400).send({ status: false, message: 'userId must be present' })
         if (!isValidObjectId(userId)) return res.status(400).send({ status: false, message: 'userId is invalid' })
-        let presentUser = await userModel.findOne({ isDeleted: false, _id: userId })
-        if (!presentUser) return res.status(403).send({ status: false, message: 'userId is not present' })
+        let presentUser = await userModel.findById({ _id: userId })
+        if (!presentUser) return res.status(403).send({ status: false, message: 'user not found' })
 
         let decodedToken = req.decodedToken.userId
-        if (presentUser.userId.toString() != decodedToken) return res.status(403).send({ status: false, message: 'You do not have access rights' })
-        req.userId = presentUser.userId
+        if (presentUser._id.toString() != decodedToken) return res.status(403).send({ status: false, message: 'You do not have access rights' })
+        req.userId = presentUser._id.toString()
         next()
 
     } catch (error) {
