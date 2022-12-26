@@ -1,6 +1,4 @@
 const orderModel = require('../models/orderModel')
-const productModel = require('../models/productModel')
-const userModel = require('../models/userModel')
 const cartModel = require('../models/cartModel')
 const validator = require('../validations/validation')
 const { isValidObjectId } = require('mongoose')

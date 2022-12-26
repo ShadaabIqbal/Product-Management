@@ -40,8 +40,8 @@ const authorisation = async function (req, res, next) {
         if (!presentUser) return res.status(403).send({ status: false, message: 'userId is not present' })
 
         let decodedToken = req.decodedToken.userId
-        if (userId.toString() != decodedToken) return res.status(403).send({ status: false, message: 'You do not have access rights' })
-        req.userId = userId
+        if (presentUser.userId.toString() != decodedToken) return res.status(403).send({ status: false, message: 'You do not have access rights' })
+        req.userId = presentUser.userId
         next()
 
     } catch (error) {
