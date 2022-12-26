@@ -12,7 +12,7 @@ const createOrder = async function (req, res) {
         if (!validator.requiredInput(req.body)) return res.status(400).send({ status: false, message: 'Input is required' })
         const cartId = req.body.cartId
         if (!isValidObjectId(cartId)) return res.status(400).send({ status: false, message: 'Cart Id is invalid' })
-        let presentCart = await cartModel.findOne({ _id: cartId })
+        let presentCart = await cartModel.findOne({ _id: cartId, isDeleted: false })
         if (!presentCart) return res.status(404).send({ status: false, message: 'No cart found' })
         if (presentCart.userId.toString() != userId) return res.status(403).send({ status: false, message: "You do not have access rigths" })
 
@@ -46,7 +46,7 @@ const updateOrder = async function (req, res) {
         if (!validator.isEmpty(orderId)) return res.status(400).send({ status: false, message: 'Order Id is required' })
         if (!isValidObjectId(orderId)) return res.status(400).send({ status: false, message: 'orderId is invalid' })
         let presentOrder = await orderModel.findOne({ _id: orderId, isDeleted: false })
-        if (!presentOrder) return res.status(404).send({ status: false, message: 'No order found' })
+        if (!presentOrder) return res.status(404).send({ status: false, message: 'No order found here' })
 
         if (presentOrder.userId.toString() != userId) return res.status(403).send({ status: false, message: "You do not have access rigths" })
 
