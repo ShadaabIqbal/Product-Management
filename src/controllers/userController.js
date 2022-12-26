@@ -81,9 +81,8 @@ const createUser = async function (req, res) {
 
         if (!isValidpincode(address.billing.pincode)) { return res.status(400).send({ status: false, message: "billing pincode is invalid" }) }
 
-
-        let saltRounds = await bcrypt.genSalt(10);
-        let hash = await bcrypt.hash(password, saltRounds);
+        const saltRounds = 10
+        let hash = bcrypt.hash(password, saltRounds);
         data.password = hash;
 
         let checkEmailAndPhone = await userModel.findOne({ $or: [{ email }, { phone }] });
@@ -229,8 +228,8 @@ const updateUser = async function (req, res) {
                 return res.status(400).send({ status: false, message: "Provide password between 8 to 15 characters and must contain one capital letter and one special character" });
             }
 
-            let saltRounds = await bcrypt.genSalt(10);
-            let hash = await bcrypt.hash(password, saltRounds);
+            const saltRounds = 10
+            let hash = bcrypt.hash(password, saltRounds);
             data.password = hash;
         }
 
