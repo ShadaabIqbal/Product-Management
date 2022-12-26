@@ -1,6 +1,4 @@
 const mongoose = require('mongoose')
-const userModel = require('../models/userModel')
-const productModel = require('../models/productModel')
 const objectId = mongoose.Schema.Types.ObjectId
 
 const cartSchema = new mongoose.Schema({
