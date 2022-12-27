@@ -13,7 +13,7 @@ const createUser = async function (req, res) {
         let data = req.body;
         let files = req.files;
 
-        if (Object.keys(data).length == 0) {
+        if (!validations.requiredInput(data)) {
             return res.status(400).send({ status: "false", message: "All fields are mandatory" });
         }
         if (files.length == 0) {
@@ -58,19 +58,19 @@ const createUser = async function (req, res) {
 
         address = isJson(address)
 
-        if (typeof (address) !== 'object') { return res.status(400).send({ status: true, msg: "please put address in object format" }) }
+        if (typeof (address) !== 'object') { return res.status(400).send({ status: true, message: "please put address in object format" }) }
 
-        if (!address.shipping || typeof (address.shipping) !== 'object') { return res.status(400).send({ status: true, msg: "shipping address is required and must be in object format" }) }
+        if (!address.shipping || typeof (address.shipping) !== 'object') { return res.status(400).send({ status: true, message: "shipping address is required and must be in object format" }) }
 
-        if (!address.billing || typeof (address.billing) !== 'object') { return res.status(400).send({ status: true, msg: "billing address is required and must be in object format" }) }
+        if (!address.billing || typeof (address.billing) !== 'object') { return res.status(400).send({ status: true, message: "billing address is required and must be in object format" }) }
 
         let arr = ["street", "city", "pincode"]
         for (i of arr) {
-            if (!address.shipping[i]) return res.status(400).send({ status: false, msg: `${i} is not present in your shipping address` })
+            if (!address.shipping[i]) return res.status(400).send({ status: false, message: `${i} is not present in your shipping address` })
         }
 
         for (i of arr) {
-            if (!address.billing[i]) return res.status(400).send({ status: false, msg: `${i} is not present in your billing address` })
+            if (!address.billing[i]) return res.status(400).send({ status: false, message: `${i} is not present in your billing address` })
         }
 
         if (!isValidStreet(address.shipping.street)) { return res.status(400).send({ status: false, message: "shipping street is invalid" }) }
@@ -82,7 +82,7 @@ const createUser = async function (req, res) {
         if (!isValidpincode(address.billing.pincode)) { return res.status(400).send({ status: false, message: "billing pincode is invalid" }) }
 
         const saltRounds = 10
-        let hash = bcrypt.hash(password, saltRounds);
+        let hash = await bcrypt.hash(password, saltRounds);
         data.password = hash;
 
         let checkEmailAndPhone = await userModel.findOne({ $or: [{ email }, { phone }] });
@@ -90,9 +90,15 @@ const createUser = async function (req, res) {
             return res.status(400).send({ status: "false", message: "Email or phone already exists" });
         }
 
-        let PicUrl = await uploadFile(files[0])
-        if (!PicUrl) return res.status(400).send({ status: false, msg: "Provide valid profile picture" })
-        data.profileImage = PicUrl
+        if (!validations.validImage(files[0].originalname)) {
+            return res.status(400).send({ status: false, message: "Image is not valid must be of extention .jpg,.jpeg,.bmp,.gif,.png" })
+        } else {
+            let uploadProfileURL = await uploadFile(files[0])
+            if (!uploadProfileURL) return res.status(400).send({ status: false, message: "Provide valid profile picture" })
+            data.profileImage = uploadProfileURL
+        }
+
+
         data.address = address
 
         let createData = await userModel.create(data);
@@ -109,11 +115,11 @@ const createUser = async function (req, res) {
 const loginUser = async function (req, res) {
     try {
         const { email, password } = req.body
-        if (!Object.keys(req.body).length > 0) return res.status(400).send({ status: false, message: 'Input is required' })
+        if (!validations.requiredInput(req.body)) return res.status(400).send({ status: false, message: 'Input is required' })
 
-        if (!email) return res.status(400).send({ status: false, message: 'Email is required' })
+        if (!validations.isEmpty(email)) return res.status(400).send({ status: false, message: 'Email is required' })
 
-        if (!password) return res.status(400).send({ status: false, message: 'Password is required' })
+        if (!validations.isEmpty(password)) return res.status(400).send({ status: false, message: 'Password is required' })
 
         let presentUser = await userModel.findOne({ email })
         if (!presentUser) return res.status(401).send({ status: false, message: 'Invalid email' })
@@ -132,16 +138,8 @@ const loginUser = async function (req, res) {
 
 const getuser = async function (req, res) {
     try {
-        let userId = req.params.userId;
-        let userLoggedIn = req.decodedToken.userId
-        if (userId != userLoggedIn) {
-            return res.status(403).send({ status: false, msg: "Authorization failed" })
-        }
-        let correctdata = await userModel.findById({ _id: userId });
-        if (!correctdata) {
-            return res.status(404).send({ status: false, message: "No data found" })
-        }
-        return res.status(200).json({ status: true, message: "User profile details", data: correctdata })
+        let presentUser = req.presentUser
+        return res.status(200).json({ status: true, message: "User profile details", data: presentUser })
 
     } catch (err) {
         return res.status(500).json({ status: false, message: err.message })
@@ -150,27 +148,10 @@ const getuser = async function (req, res) {
 
 const updateUser = async function (req, res) {
     try {
-        let userId = req.params.userId;
-        let userLoggedIn = req.decodedToken.userId;
-
-        if (!isValidObjectId(userId)) {
-            return res.status(400).send({ status: false, message: "userid is invalid" });
-        }
-
-        const checkUser = await userModel.findOne({ _id: userId });
-        if (!checkUser) {
-            return res.status(404).send({ status: false, message: "User does not exist" });
-        }
-
-        if (userId != userLoggedIn) {
-            return res.status(403).send({ status: false, message: "Authorization failed" });
-        }
-
+        let userId = req.userId;
         const data = req.body;
         let files = req.files;
-        if (Object.keys(data).length == 0 && files == undefined) {
-            return res.status(400).send({ status: false, message: "Insert Data : BAD REQUEST" });
-        }
+        if (!validations.requiredInput(data))  return res.status(400).send({ status: false, message: "Insert Data : BAD REQUEST" });
 
         let { fname, lname, email, phone, password, profileImage } = data;
 
@@ -208,7 +189,7 @@ const updateUser = async function (req, res) {
 
         if (phone || phone == "") {
             if (!isEmpty(phone)) {
-                return res.status(400).send({ status: false, msg: "Please Provide email address" });
+                return res.status(400).send({ status: false, msg: "Please Provide phone" });
             }
             if (!isValidPhone(phone)) {
                 return res.status(400).send({ status: false, message: "Invalid phone number" });
@@ -229,7 +210,7 @@ const updateUser = async function (req, res) {
             }
 
             const saltRounds = 10
-            let hash = bcrypt.hash(password, saltRounds);
+            let hash = await bcrypt.hash(password, saltRounds);
             data.password = hash;
         }
 

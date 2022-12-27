@@ -112,7 +112,7 @@ const deleteCart = async function (req, res) {
         let price = 0
         let noOfItems = 0
         await cartModel.findOneAndUpdate({ userId: userId }, { $set: { items: items, totalPrice: price, totalItems: noOfItems } })
-        return res.status(204)
+        return res.status(204).send()
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
     }
