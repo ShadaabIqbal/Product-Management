@@ -49,8 +49,6 @@ const isValidPswd = (Password) => {
     return /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,15}$/.test(Password)
 }
 
-const { isValidObjectId } = require('mongoose')
-
 // is valid json string
 function isJson(str) {
     let obj = {}
@@ -61,10 +59,6 @@ function isJson(str) {
         return false;
     }
     return obj;
-}
-
-const validSize = function (value){
-    return ["S", "XS","M","X", "L","XXL", "XL"].includes(value)
 }
 
 const validImage = function (value){
@@ -79,4 +73,4 @@ const isValidPrice = function (price) {
     return /^[a-zA-Z _.-]+$/.test(value);
   };
 
-module.exports = { isEmpty, isValidName, isValidPhone, isValidpincode, isValidStreet, isValidEmail, isValidPswd, isJson, validSize, validImage, requiredInput, isValidPrice, isValidStyle, isValidObjectId, isValidString }
+module.exports = { isEmpty, isValidName, isValidPhone, isValidpincode, isValidStreet, isValidEmail, isValidPswd, isJson, validImage, requiredInput, isValidPrice, isValidStyle, isValidString }
