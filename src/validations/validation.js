@@ -18,7 +18,6 @@ const isValidName = function (name) {
 // Email Validation
 const isValidEmail = function (email) {
     const emailRegex = /^[a-zA-Z0-9_.+-]+@[a-zA-Z-]+\.([a-zA-Z-.]{2,4})+$/
-     //   /^[a-z0-9][a-z0-9-_\.]+@([a-z]|[a-z0-9]?[a-z0-9-]+[a-z0-9])\.[a-z0-9]{2,10}(?:\.[a-z]{2,10})?$/;
     return emailRegex.test(email);
 };
 
