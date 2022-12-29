@@ -57,7 +57,7 @@ const createUser = async function (req, res) {
 
         address = validations.isJson(address)
 
-        // if (typeof (address) !== 'object') { return res.status(400).send({ status: true, message: "please put address in object format" }) }
+
 
         if (!address.shipping || typeof (address.shipping) !== 'object') { return res.status(400).send({ status: true, message: "shipping address is required and must be in object format" }) }
 
@@ -140,8 +140,8 @@ const getuser = async function (req, res) {
         let presentUser = req.presentUser
         return res.status(200).json({ status: true, message: "User profile details", data: presentUser })
 
-    } catch (err) {
-        return res.status(500).json({ status: false, message: err.message })
+    } catch (error) {
+        return res.status(500).json({ status: false, message: error.message })
     }
 }
 
@@ -271,8 +271,8 @@ const updateUser = async function (req, res) {
 
         let updateData = await userModel.findOneAndUpdate({ _id: userId }, data, { new: true });
         res.status(200).send({ status: true, message: "User profile updated", data: updateData });
-    } catch (err) {
-        res.status(500).send({ status: false, message: err.message });
+    } catch (error) {
+        res.status(500).send({ status: false, message: error.message });
     }
 };
 

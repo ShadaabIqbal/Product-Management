@@ -18,9 +18,9 @@ let uploadFile = async (file) => {
             Body: file.buffer
         }
 
-        s3.upload(uploadParams, function (err, data) {
-            if (err) {
-                return reject({ error: err })
+        s3.upload(uploadParams, function (error, data) {
+            if (error) {
+                return reject({ error: error })
             }
 
             return resolve(data.Location)

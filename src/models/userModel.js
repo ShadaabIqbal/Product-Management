@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        requitred: true
+        required: true
     },
     address: {
         shipping: {

@@ -10,7 +10,7 @@ const createOrder = async function (req, res) {
         if (!validator.requiredInput(req.body)) return res.status(400).send({ status: false, message: 'Input is required' })
         const cartId = req.body.cartId
         if (!isValidObjectId(cartId)) return res.status(400).send({ status: false, message: 'Cart Id is invalid' })
-        let presentCart = await cartModel.findOne({ _id: cartId })
+        let presentCart = await cartModel.findById({ _id: cartId })
         if (!presentCart) return res.status(404).send({ status: false, message: 'No cart found' })
         if (presentCart.userId.toString() != userId) return res.status(403).send({ status: false, message: "You do not have access rigths" })
 
@@ -30,7 +30,7 @@ const createOrder = async function (req, res) {
 
         let createOrder = await orderModel.create(obj)
         await cartModel.findByIdAndUpdate({ _id: presentCart._id }, { $set: { items: [], totalPrice: 0, totalItems: 0 } })
-        return res.status(201).send({ status: false, message: 'Success', data: createOrder })
+        return res.status(201).send({ status: true, message: 'Success', data: createOrder })
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
     }

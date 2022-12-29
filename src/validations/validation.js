@@ -1,10 +1,10 @@
-const requiredInput = function (value){
+const requiredInput = function (value) {
     return Object.keys(value).length > 0
 }
 
 // Validation for empty
 const isEmpty = function (value) {
-    if (typeof value === "undefined" || value === null) return false;
+    if (typeof value === "undefined" || value == null) return false;
     if (typeof value === "string" && value.trim().length === 0) return false;
     return true;
 };
@@ -23,7 +23,7 @@ const isValidEmail = function (email) {
 
 const isValidString = (String) => {
     return /\d/.test(String)
-  };
+};
 
 //Phone Validation
 const isValidPhone = function (phone) {
@@ -60,16 +60,16 @@ function isJson(str) {
     return obj;
 }
 
-const validImage = function (value){
+const validImage = function (value) {
     return value.match(/(\.jpg|\.jpeg|\.bmp|\.gif|\.png|\.PNG)$/)
 }
 
 const isValidPrice = function (price) {
     return /^[1-9]\d{0,7}(?:\.\d{1,2})?$/.test(price);
-  };
+};
 
-  const isValidStyle = function (value) {
+const isValidStyle = function (value) {
     return /^[a-zA-Z _.-]+$/.test(value);
-  };
+};
 
 module.exports = { isEmpty, isValidName, isValidPhone, isValidpincode, isValidStreet, isValidEmail, isValidPswd, isJson, validImage, requiredInput, isValidPrice, isValidStyle, isValidString }
